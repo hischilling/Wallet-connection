@@ -36,3 +36,18 @@
         (ok true)
     )
 )
+;; Additional admin control constants
+(define-constant ERR_ACTION_TIMEOUT u105)
+(define-constant ERR_NOT_ADMIN u102)
+
+;; Accept admin role (must be called by proposed admin)
+(define-public (accept-admin)
+    (let (
+        (pending-info (unwrap! (map-get? pending-admins tx-sender) (err ERR_NOT_ADMIN)))
+    )
+        (asserts! (< block-height (get expires pending-info)) (err ERR_ACTION_TIMEOUT))
+        (map-set admins tx-sender { active: true })
+        (map-delete pending-admins tx-sender)
+        (ok true)
+    )
+)
